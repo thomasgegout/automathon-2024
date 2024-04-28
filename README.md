@@ -1,5 +1,7 @@
 # Automathon 2024
 
+![](./images/automathon.png)
+
 Bienvenue, ce hackathon vise à vous former à la Detection de DeepFakes
 
 
