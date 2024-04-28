@@ -82,6 +82,12 @@ cd automatonhackathon-2024
 source .venv/bin/activate
 ```
 
+À tout moment, pour ressortir de  l'environnement virtuel executez:
+
+```bash
+deactivate
+```
+
 5. Installez les dependances du projet
 
 ```bash
