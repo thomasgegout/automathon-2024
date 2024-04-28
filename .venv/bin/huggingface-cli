@@ -1,4 +1,4 @@
-#!/Users/neosapien/Development/automathon/.venv/bin/python3.11
+#!/Users/neosapien/Development/automathon/.venv/bin/python3.10
 # -*- coding: utf-8 -*-
 import re
 import sys
