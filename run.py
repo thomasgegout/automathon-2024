@@ -25,11 +25,11 @@ def smart_resize(data, size): # kudos louis
     full_height = data.shape[-2]
     full_width = data.shape[-1]
 
-    if height > width:
+    if full_height > full_width:
         alt_height = size
-        alt_width = int(width * height / size)
-    elif height < width:
-        alt_height = int(height * size / width)
+        alt_width = int(full_width * full_height / size)
+    elif full_height < full_width:
+        alt_height = int(full_height * full_width / size)
         alt_width = size
     else:
         alt_height = size
