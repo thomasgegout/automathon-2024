@@ -84,19 +84,26 @@ if not os.path.exists(resized_dir) and create_small_dataset:
     train_files = [f for f in os.listdir(os.path.join(dataset_dir, "train_dataset")) if f.endswith('.mp4')]
     test_files = [f for f in os.listdir(os.path.join(dataset_dir, "test_dataset")) if f.endswith('.mp4')]
     experimental_files = [f for f in os.listdir(os.path.join(dataset_dir, "experimental_dataset")) if f.endswith('.mp4')]
-    sample = transforms.UniformTemporalSubsample(nb_frames)
-    def resize(in_video_path, out_video_path, sample=sample):
+    def resize(in_video_path, out_video_path, nb_frames=10):
         # use time to measure the time it takes to resize a video
         t1 = time.time()
-        video, audio, info = io.read_video(in_video_path, pts_unit='sec', start_pts=0, end_pts=10, output_format='TCHW')
+        reader = io.VideoReader(in_video_path)
+        # take 10 frames uniformly sampled from the video
+        info = reader.get_metadata()
+        duration = info['video']['duration']
+        frames = []
+        for i in range(nb_frames):
+            reader.seek((duration*i)//nb_frames)
+            frames.append(next(reader))
+        video = torch.stack(frames)
+
+        #video, audio, info = io.read_video(in_video_path, pts_unit='sec', start_pts=0, end_pts=10, output_format='TCHW')
         t2 = time.time()
-        video = sample(video)
-        t3 = time.time()
         video = smart_resize(video, 256)
-        t4 = time.time()
+        t3 = time.time()
         torch.save(video, out_video_path)
-        t5 = time.time()
-        print(f"read: {t2-t1}, sample: {t3-t2}, resize: {t4-t3}, save: {t5-t4}")
+        t4 = time.time()
+        print(f"read: {t2-t1}, resize: {t3-t2}, save: {t4-t3}")
         #video = video.permute(0,2,3,1)
         #io.write_video(video_path, video, 15, video_codec='h264')
 
