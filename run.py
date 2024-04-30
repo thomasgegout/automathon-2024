@@ -287,6 +287,6 @@ for sample in tqdm(loader):
 
 ### ENREGISTREMENT
 print("Saving...")
-tests = ["id,label\n"] + [f"{ID},{label_pred}\n" for ID, label_pred in zip(ids, labels)]
+tests = ["id,label\n"] + [f"{ID},{label_pred[0]}\n" for ID, label_pred in zip(ids, labels)]
 with open("submission.csv", "w") as file:
     file.writelines(tests)
