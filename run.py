@@ -84,26 +84,30 @@ if not os.path.exists(resized_dir) and create_small_dataset:
     test_files = [f for f in os.listdir(os.path.join(dataset_dir, "test_dataset")) if f.endswith('.mp4')]
     experimental_files = [f for f in os.listdir(os.path.join(dataset_dir, "experimental_dataset")) if f.endswith('.mp4')]
     
-    def resize(video_path, nb_frames=10):
-        video, audio, info = io.read_video(video_path)
+    def resize(in_video_path, out_video_path, nb_frames=10):
+        video, audio, info = io.read_video(in_video_path)
         video = video.permute(0,3,1,2)
         length = video.shape[0]
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
         video = smart_resize(video, 256)
-        video = video.permute(0,2,3,1)
-        io.write_video(video_path, video, 15, video_codec='h264')
+        torch.save(video, out_video_path)
+        #video = video.permute(0,2,3,1)
+        #io.write_video(video_path, video, 15, video_codec='h264')
 
     for f in tqdm(train_files):
-        video_path = os.path.join(dataset_dir, "train_dataset", f)
-        resize(video_path)
+        in_video_path = os.path.join(dataset_dir, "train_dataset", f)
+        out_video_path = os.path.join(resized_dir, "train_dataset", f[:-3] + "pt")
+        resize(in_video_path, out_video_path)
         print(f"resized {f} from train")
     for f in tqdm(test_files):
-        video_path = os.path.join(dataset_dir, "test_dataset", f)
-        resize(video_path)
+        in_video_path = os.path.join(dataset_dir, "train_dataset", f)
+        out_video_path = os.path.join(resized_dir, "train_dataset", f[:-3] + "pt")
+        resize(in_video_path, out_video_path)
         print(f"resized {f} from test")
     for f in tqdm(experimental_files):
-        video_path = os.path.join(dataset_dir, "experimental_dataset", f)
-        resize(video_path)
+        in_video_path = os.path.join(dataset_dir, "experimental_dataset", f)
+        out_video_path = os.path.join(resized_dir, "experimental_dataset", f[:-3] + "pt")
+        resize(in_video_path, out_video_path)
         print(f"resized {f} from experimental")
     os.system(f"cp {os.path.join(dataset_dir, 'train_dataset', 'metadata.json')} {os.path.join(resized_dir, 'train_dataset', 'metadata.json')}")
     os.system(f"cp {os.path.join(dataset_dir, 'dataset.csv')} {os.path.join(resized_dir, 'dataset.csv')}")
@@ -144,14 +148,16 @@ class VideoDataset(Dataset):
                 self.data= json.load(file)
                 self.data = {k : (torch.tensor(float(1)) if v == 'FAKE' else torch.tensor(float(0))) for k, v in self.data.items()}
 
-        self.video_files = [f for f in os.listdir(self.root_dir) if f.endswith('.mp4')]
+        #self.video_files = [f for f in os.listdir(self.root_dir) if f.endswith('.mp4')]
+        self.video_files = [f for f in os.listdir(self.root_dir) if f.endswith('.pt')]
 
     def __len__(self):
         return len(self.video_files)
 
     def __getitem__(self, idx):
         video_path = os.path.join(self.root_dir, self.video_files[idx])
-        video, audio, info = io.read_video(video_path, pts_unit='sec')
+        #video, audio, info = io.read_video(video_path, pts_unit='sec')
+        video = torch.load(video_path)
 
         video = video.permute(0,3,1,2)
         length = video.shape[0]
