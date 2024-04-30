@@ -195,7 +195,8 @@ class VideoDataset(Dataset):
         #video = smart_resize(video, 256) / 255
         video = video / 255
 
-        ID = str(self.ids[self.video_files[idx]])
+        ID = self.ids[self.video_files[idx]]
+        print(ID, type(ID))
         if self.dataset_choice == "test":
             return video, ID
         else:
