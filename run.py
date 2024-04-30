@@ -74,7 +74,7 @@ root_dir = os.path.expanduser("~/automathon-2024")
 nb_frames = 10
 
 ## MAKE RESIZED DATASET
-create_small_dataset = False
+create_small_dataset = True
 resized_dir = os.path.join(root_dir, "resized_dataset")
 if not os.path.exists(resized_dir) and create_small_dataset:
     os.mkdir(resized_dir)
@@ -158,7 +158,8 @@ class VideoDataset(Dataset):
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
 
         # resize the data into a reglar shape of 256x256 and normalize it
-        video = smart_resize(video, 256) / 255
+        #video = smart_resize(video, 256) / 255
+        video = video / 255
 
         ID = self.ids[self.video_files[idx]]
         if self.dataset_choice == "test":
