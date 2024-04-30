@@ -87,7 +87,7 @@ if not os.path.exists(resized_dir) and create_small_dataset:
     def resize(in_video_path, out_video_path, nb_frames=10):
         # use time to measure the time it takes to resize a video
         t1 = time.time()
-        reader = io.VideoReader(in_video_path)
+        reader = io.VideoReader(in_video_path, stream='video')
         # take 10 frames uniformly sampled from the video
         info = reader.get_metadata()
         duration = info['video']['duration']
