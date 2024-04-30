@@ -1,22 +1,142 @@
 #!/usr/bin/env python3
 
-import wandb
-import os
 import torch
-import torchvision
 import torch.nn as nn
-import torch.optim as optim
-import torchvision.transforms as transforms
-from torch.utils.data import DataLoader
-import timm
+from torch.utils.data import Dataset, DataLoader
+from torchinfo import summary
+import torchvision.io as io
+import os
 import json
-import numpy as np
-from matplotlib import pyplot as plt
+from tqdm import tqdm
+import csv
+import timm
+import wandb
 
+from PIL import Image
+import torchvision.transforms as transforms
+
+# UTILITIES
+import matplotlib.pyplot as plt
+
+def display_image(img):
+    img = img.permute(1,2,0)
+    plt.imshow(img)
+
+def resize_data(data, new_height, new_width, x=0, y=0, height=None, width=None):
+    # Prends un tensor de shape [...,C,H,W] et le resize en [C,new_height,new_width]
+    # x, y, height et width servent a faire un crop avant de resize
+
+    full_height = data.shape[-2]
+    full_width = data.shape[-1]
+    height = full_height - y if height is None else height
+    width = full_width -x if width is None else width
+
+    ratio = new_height/new_width
+    if height/width > ratio:
+        expand_height = height
+        expand_width = int(height / ratio)
+    elif height/width < ratio:
+        expand_height = int(width * ratio)
+        expand_width = width
+    else:
+        expand_height = height
+        expand_width = width
+    tr = transforms.Compose([
+        transforms.CenterCrop((expand_height, expand_width)),
+        transforms.Resize((new_height, new_width))
+    ])
+    x = data[...,y:min(y+height, full_height), x:min(x+width, full_width)].clone()
+    return tr(x)
+
+# SETUP DATASET
+
+dataset_dir = "/raid/datasets/hackathon2024"
+root_dir = os.path.expanduser("~/automathon-2024")
+
+nb_frames = 10
+
+class VideoDataset(Dataset):
+    """
+    This Dataset takes a video and returns a tensor of shape [10, 3, 256, 256]
+    That is 10 colored frames of 256x256 pixels.
+    """
+    def __init__(self, root_dir, dataset_choice="train", nb_frames=10):
+        super().__init__()
+        self.dataset_choice = dataset_choice
+        if  self.dataset_choice == "train":
+            self.root_dir = os.path.join(root_dir, "train_dataset")
+        elif  self.dataset_choice == "test":
+            self.root_dir = os.path.join(root_dir, "test_dataset")
+        elif  self.dataset_choice == "experimental":
+            self.root_dir = os.path.join(root_dir, "experimental_dataset")
+        else:
+            raise ValueError("choice must be 'train', 'test' or 'experimental'")
+
+        with open(os.path.join(root_dir, "dataset.csv"), 'r') as file:
+            reader = csv.reader(file)
+            # read dataset.csv with id,label columns to create
+            # a dict which associated label: id
+            self.ids = {row[1] : row[0] for row in reader}
+
+        if self.dataset_choice == "test":
+            self.data = None
+        else:
+            with open(os.path.join(self.root_dir, "metadata.json"), 'r') as file:
+                self.data= json.load(file)
+                self.data = {k : (torch.tensor(float(1)) if v == 'FAKE' else torch.tensor(float(0))) for k, v in self.data.items()}
+
+        self.video_files = [f for f in os.listdir(self.root_dir) if f.endswith('.mp4')]
+
+    def __len__(self):
+        return len(self.video_files)
+
+    def __getitem__(self, idx):
+        video_path = os.path.join(self.root_dir, self.video_files[idx])
+        video, audio, info = io.read_video(video_path, pts_unit='sec')
+
+        video = video.permute(0,3,1,2)
+        length = video.shape[0]
+        video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
+
+        # resize the data into a reglar shape of 256x256 and normalize it
+        video = torch.stack([resize_data(img, 256, 256)/255 for img in video])
+
+        ID = self.ids[self.video_files[idx]]
+        if self.dataset_choice == "test":
+            return video, ID
+        else:
+            label = self.data[self.video_files[idx]]
+            return video, label, ID
+
+
+
+train_dataset = VideoDataset(dataset_dir, dataset_choice="train", nb_frames=nb_frames)
+test_dataset = VideoDataset(dataset_dir, dataset_choice="test", nb_frames=nb_frames)
+experimental_dataset = VideoDataset(dataset_dir, dataset_choice="experimental", nb_frames=nb_frames)
+
+
+# MODELE
+
+class DeepfakeDetector(nn.Module):
+    def __init__(self, nb_frames=10):
+        super().__init__()
+        self.dense = nn.Linear(nb_frames*3*256*256,1)
+        self.flat = nn.Flatten()
+        self.norm = nn.BatchNorm1d(1)
+
+    def forward(self, x):
+        y = self.flat(x)
+        y = self.dense(y)
+        y = self.norm(y)
+        return (y + 1)/2
+
+# LOGGING
+
+wandb.login(key="a446d513570a79c857317c3000584c5f6d6224f0")
 
 run = wandb.init(
     project="automathon",
-    name="nom-de-votre-equipe",
+    name="test-admin",
     config={
         "learning_rate": 0.001,
         "architecture": "-",
@@ -26,14 +146,48 @@ run = wandb.init(
     },
 )
 
-def train(model, optimizer, loss_fn, train_loader, epochs=10):
-    for epoch in range(epochs):
-        model.train()
-        for batch in train_loader:
-            optimizer.zero_grad()
-            imgs, labels = batch
-            output = model(imgs)
-            loss = loss_fn(output, labels)
-            loss.backward()
-            optimizer.step()
-            run.log({"training_loss": loss.item()}, step=epoch)
+# ENTRAINEMENT
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+loss_fn = nn.MSELoss()
+model = DeepfakeDetector().to(device)
+print("Training model:")
+summary(model, input_size=(2, 3, 10, 256, 256))
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+nb_epochs = 5
+loader = DataLoader(train_dataset, batch_size=2, shuffle=True)
+
+print("Training...")
+for epoch in range(nb_epochs):
+    for sample in tqdm(loader, desc="Epoch {}".format(epoch), ncols=0):
+        optimizer.zero_grad()
+        X, label, ID = sample
+        X = X.to(device)
+        label = label.to(device)
+        label_pred = model(X)
+        label=torch.unsqueeze(label,dim=1)
+        loss = loss_fn(label, label_pred)
+        loss.backward()
+        optimizer.step()
+        run.log({"loss": loss.item(), "epoch": epoch})
+
+## TEST
+
+loader = DataLoader(test_dataset, batch_size=2, shuffle=False)
+model = model.to(device)
+ids = []
+labels = []
+print("Testing...")
+for sample in tqdm(loader):
+    X, ID = sample
+    X = X.to(device)
+    label_pred = model(X)
+    ids.append(ID)
+    labels.append(label_pred)
+
+### ENREGISTREMENT
+print("Saving...")
+tests = ["id,label\n"] + [f"{ID},{label_pred.item()}\n" for ID, label_pred in zip(ids, labels)]
+with open("submission.csv", "w") as file:
+    file.writelines(tests)
