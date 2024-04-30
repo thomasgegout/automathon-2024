@@ -77,6 +77,7 @@ nb_frames = 10
 ## MAKE RESIZED DATASET
 create_small_dataset = True
 resized_dir = os.path.join(root_dir, "resized_dataset")
+errors = []
 if not os.path.exists(resized_dir) and create_small_dataset:
     os.mkdir(resized_dir)
     os.mkdir(os.path.join(resized_dir, "train_dataset"))
@@ -87,13 +88,15 @@ if not os.path.exists(resized_dir) and create_small_dataset:
     def resize(in_video_path, out_video_path, nb_frames=10):
         # use time to measure the time it takes to resize a video
         t1 = time.time()
-        #reader = io.VideoReader(in_video_path, stream='video')
+        reader = io.VideoReader(in_video_path)
         # take 10 frames uniformly sampled from the video
-        #info = reader.get_metadata()
-        #duration = info['video']['duration']
-        #video = torch.stack([frame for frame in reader.seek(duration//nb_frames)])
-
-        video, audio, info = io.read_video(in_video_path, pts_unit='sec', start_pts=0, end_pts=5, output_format='TCHW')
+        duration = 10 # maximum duration of the video
+        frames = []
+        for i in range(10):
+            frames.append(reader.seek(1))
+        
+        video = torch.stack(frames)
+        #video, audio, info = io.read_video(in_video_path, pts_unit='sec', start_pts=0, end_pts=10, output_format='TCHW')
         t2 = time.time()
         video = smart_resize(video, 256)
         t3 = time.time()
@@ -106,7 +109,10 @@ if not os.path.exists(resized_dir) and create_small_dataset:
     for f in tqdm(train_files):
         in_video_path = os.path.join(dataset_dir, "train_dataset", f)
         out_video_path = os.path.join(resized_dir, "train_dataset", f[:-3] + "pt")
-        resize(in_video_path, out_video_path)
+        try:
+            resize(in_video_path, out_video_path)
+        except Exception as e:
+            errors.append((f, e))
         print(f"resized {f} from train")
     for f in tqdm(test_files):
         in_video_path = os.path.join(dataset_dir, "train_dataset", f)
@@ -121,6 +127,8 @@ if not os.path.exists(resized_dir) and create_small_dataset:
     os.system(f"cp {os.path.join(dataset_dir, 'train_dataset', 'metadata.json')} {os.path.join(resized_dir, 'train_dataset', 'metadata.json')}")
     os.system(f"cp {os.path.join(dataset_dir, 'dataset.csv')} {os.path.join(resized_dir, 'dataset.csv')}")
     os.system(f"cp {os.path.join(dataset_dir, 'experimental_dataset', 'metadata.json')} {os.path.join(resized_dir, 'experimental_dataset', 'metadata.json')}")
+
+print(errors)
 
 if create_small_dataset:
     dataset_dir = resized_dir
