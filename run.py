@@ -166,7 +166,7 @@ class VideoDataset(Dataset):
             reader = csv.reader(file)
             # read dataset.csv with id,label columns to create
             # a dict which associated label: id
-            self.ids = {row[1] : row[0] for row in reader}
+            self.ids = {row[1][:-3] + "pt" : row[0] for row in reader}
 
         if self.dataset_choice == "test":
             self.data = None
