@@ -18,6 +18,28 @@ import torchvision.transforms as transforms
 
 # UTILITIES
 
+def smart_resize(data, size): # kudos louis
+    # Prends un tensor de shape [...,C,H,W] et le resize en [C,new_height,new_width]
+    # x, y, height et width servent a faire un crop avant de resize
+
+    full_height = data.shape[-2]
+    full_width = data.shape[-1]
+
+    if height > width:
+        alt_height = size
+        alt_width = int(width * height / size)
+    elif height < width:
+        alt_height = int(height * size / width)
+        alt_width = size
+    else:
+        alt_height = size
+        alt_width = size
+    tr = transforms.Compose([
+        transforms.Resize((alt_height, alt_width))
+        transforms.CenterCrop(size)
+    ])
+    return tr(data)
+
 def resize_data(data, new_height, new_width, x=0, y=0, height=None, width=None):
     # Prends un tensor de shape [...,C,H,W] et le resize en [C,new_height,new_width]
     # x, y, height et width servent a faire un crop avant de resize
@@ -61,13 +83,12 @@ if not os.path.exists(resized_dir):
     test_files = [f for f in os.listdir(os.path.join(dataset_dir, "test_dataset")) if f.endswith('.mp4')]
     experimental_files = [f for f in os.listdir(os.path.join(dataset_dir, "experimental_dataset")) if f.endswith('.mp4')]
     
-    tr = transforms.Resize((256,256))
     def resize(video_path, nb_frames=10):
         video, audio, info = io.read_video(video_path, pts_unit='sec')
         video = video.permute(0,3,1,2)
         length = video.shape[0]
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
-        video = tr(video)
+        video = smart_resize(video, 256)
         video = video.permute(0,2,3,1)
         io.write_video(video_path, video, 15, video_codec='h264')
 
