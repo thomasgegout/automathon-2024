@@ -90,7 +90,7 @@ if not os.path.exists(resized_dir):
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
         video = smart_resize(video, 256)
         video = video.permute(0,2,3,1)
-        io.write_video(video_path, video, 15, video_codec='h264')
+        io.write_video(video_path, video, 15, video_codec='libx264')
 
     for f in train_files:
         video_path = os.path.join(dataset_dir, "train_dataset", f)
