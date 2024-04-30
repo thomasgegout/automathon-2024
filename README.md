@@ -20,7 +20,7 @@ python3 dgx_setup.py
 
 *Note: le numero 8 est un exemple, mettez votre numero d'equipe*
 
-Le script tourneras et vous donnera votre mot de passe.
+Le script tournera et vous donnera votre mot de passe.
 
 ```
 Your password is jbk47rgdfEFH
