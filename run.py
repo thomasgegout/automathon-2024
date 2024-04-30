@@ -74,8 +74,9 @@ root_dir = os.path.expanduser("~/automathon-2024")
 nb_frames = 10
 
 ## MAKE RESIZED DATASET
+create_small_dataset = False
 resized_dir = os.path.join(root_dir, "resized_dataset")
-if not os.path.exists(resized_dir):
+if not os.path.exists(resized_dir) and create_small_dataset:
     os.mkdir(resized_dir)
     os.mkdir(os.path.join(resized_dir, "train_dataset"))
     os.mkdir(os.path.join(resized_dir, "test_dataset"))
@@ -107,7 +108,9 @@ if not os.path.exists(resized_dir):
     os.system(f"cp {os.path.join(dataset_dir, 'train_dataset', 'metadata.json')} {os.path.join(resized_dir, 'train_dataset', 'metadata.json')}")
     os.system(f"cp {os.path.join(dataset_dir, 'dataset.csv')} {os.path.join(resized_dir, 'dataset.csv')}")
     os.system(f"cp {os.path.join(dataset_dir, 'experimental_dataset', 'metadata.json')} {os.path.join(resized_dir, 'experimental_dataset', 'metadata.json')}")
-    
+
+if create_small_dataset:
+    dataset_dir = resized_dir
 
 nb_frames = 10
 
@@ -155,6 +158,7 @@ class VideoDataset(Dataset):
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
 
         # resize the data into a reglar shape of 256x256 and normalize it
+        video = smart_resize(video, 256)
 
         ID = self.ids[self.video_files[idx]]
         if self.dataset_choice == "test":
@@ -165,8 +169,8 @@ class VideoDataset(Dataset):
 
 
 
-train_dataset = VideoDataset(resized_dir, dataset_choice="train", nb_frames=nb_frames)
-test_dataset = VideoDataset(resized_dir, dataset_choice="test", nb_frames=nb_frames)
+train_dataset = VideoDataset(dataset_dir, dataset_choice="train", nb_frames=nb_frames)
+test_dataset = VideoDataset(dataset_dir, dataset_choice="test", nb_frames=nb_frames)
 experimental_dataset = VideoDataset(dataset_dir, dataset_choice="experimental", nb_frames=nb_frames)
 
 
