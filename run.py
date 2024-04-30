@@ -158,7 +158,7 @@ class VideoDataset(Dataset):
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
 
         # resize the data into a reglar shape of 256x256 and normalize it
-        video = smart_resize(video, 256)
+        video = smart_resize(video, 256) / 255
 
         ID = self.ids[self.video_files[idx]]
         if self.dataset_choice == "test":
