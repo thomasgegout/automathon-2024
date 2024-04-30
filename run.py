@@ -217,13 +217,13 @@ class DeepfakeDetector(nn.Module):
         super().__init__()
         self.dense = nn.Linear(nb_frames*3*256*256,1)
         self.flat = nn.Flatten()
-        self.norm = nn.BatchNorm1d(1)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         y = self.flat(x)
         y = self.dense(y)
-        y = self.norm(y)
-        return (y + 1)/2
+        y = self.sigmoid(y)
+        return y
 
 # LOGGING
 
