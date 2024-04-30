@@ -7,6 +7,7 @@ from torchinfo import summary
 import torchvision.io as io
 import os
 import json
+from torchvision.io.video import re
 from tqdm import tqdm
 import csv
 import timm
@@ -43,10 +44,52 @@ def resize_data(data, new_height, new_width, x=0, y=0, height=None, width=None):
     x = data[...,y:min(y+height, full_height), x:min(x+width, full_width)].clone()
     return tr(x)
 
+
 # SETUP DATASET
 
 dataset_dir = "/raid/datasets/hackathon2024"
 root_dir = os.path.expanduser("~/automathon-2024")
+
+## MAKE RESIZED DATASET
+resized_dir = os.path.join(root_dir, "resized_dataset")
+if not os.path.exists(resized_dir):
+    os.mkdir(resized_dir)
+    os.mkdir(os.path.join(resized_dir, "train_dataset"))
+    os.mkdir(os.path.join(resized_dir, "test_dataset"))
+    train_files = [f for f in os.listdir(os.path.join(dataset_dir, "train_dataset")) if f.endswith('.mp4')]
+    test_files = [f for f in os.listdir(os.path.join(dataset_dir, "test_dataset")) if f.endswith('.mp4')]
+    experimental_files = [f for f in os.listdir(os.path.join(dataset_dir, "experimental_dataset")) if f.endswith('.mp4')]
+    for f in train_files:
+        video_path = os.path.join(dataset_dir, "train_dataset", f)
+        video, audio, info = io.read_video(video_path, pts_unit='sec')
+        video = video.permute(0,3,1,2)
+        video = resize_data(video, 256, 256)
+        video = video.permute(0,2,3,1)
+        length = video.shape[0]
+        io.write_video(os.path.join(resized_dir, "train_dataset", f), video, 15, video_codec='libx264', audio_array=audio)
+        print(f"resized {f} from train")
+    for f in test_files:
+        video_path = os.path.join(dataset_dir, "test_dataset", f)
+        video, audio, info = io.read_video(video_path, pts_unit='sec')
+        video = video.permute(0,3,1,2)
+        video = resize_data(video, 256, 256)
+        video = video.permute(0,2,3,1)
+        length = video.shape[0]
+        io.write_video(os.path.join(resized_dir, "test_dataset", f), video, 15, video_codec='libx264', audio_array=audio)
+        print(f"resized {f} from test")
+    for f in experimental_files:
+        video_path = os.path.join(dataset_dir, "experimental_dataset", f)
+        video, audio, info = io.read_video(video_path, pts_unit='sec')
+        video = video.permute(0,3,1,2)
+        video = resize_data(video, 256, 256)
+        video = video.permute(0,2,3,1)
+        length = video.shape[0]
+        io.write_video(os.path.join(resized_dir, "experimental_dataset", f), video, 15, video_codec='libx264', audio_array=audio)
+        print(f"resized {f} from experimental")
+    os.system(f"cp {os.path.join(dataset_dir, "train_dataset", "metadata.json")} {os.path.join(resized_dir, "train_dataset", "metadata.json")}")
+    os.system(f"cp {os.path.join(dataset_dir, "dataset.csv")} {os.path.join(resized_dir, 'dataset.csv')}")
+    os.system(f"cp {os.path.join(dataset_dir, 'experimental_dataset', 'metadata.json')} {os.path.join(resized_dir, 'experimental_dataset', 'metadata.json')}")
+    
 
 nb_frames = 10
 
@@ -94,7 +137,6 @@ class VideoDataset(Dataset):
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
 
         # resize the data into a reglar shape of 256x256 and normalize it
-        video = torch.stack([resize_data(img, 256, 256)/255 for img in video])
 
         ID = self.ids[self.video_files[idx]]
         if self.dataset_choice == "test":
@@ -105,8 +147,8 @@ class VideoDataset(Dataset):
 
 
 
-train_dataset = VideoDataset(dataset_dir, dataset_choice="train", nb_frames=nb_frames)
-test_dataset = VideoDataset(dataset_dir, dataset_choice="test", nb_frames=nb_frames)
+train_dataset = VideoDataset(resized_dir, dataset_choice="train", nb_frames=nb_frames)
+test_dataset = VideoDataset(resized_dir, dataset_choice="test", nb_frames=nb_frames)
 experimental_dataset = VideoDataset(dataset_dir, dataset_choice="experimental", nb_frames=nb_frames)
 
 
