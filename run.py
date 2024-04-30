@@ -271,7 +271,7 @@ for epoch in range(nb_epochs):
 """
 ## TEST
 
-loader = DataLoader(test_dataset, batch_size=2, shuffle=False)
+loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 model = model.to(device)
 ids = []
 labels = []
