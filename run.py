@@ -278,6 +278,7 @@ labels = []
 print("Testing...")
 for sample in tqdm(loader):
     X, ID = sample
+    ID = ID[0]
     X = X.to(device)
     label_pred = model(X)
     ids.append(ID)
