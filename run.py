@@ -107,7 +107,7 @@ if not os.path.exists(resized_dir) or create_small_dataset:
         #video = video.permute(0,2,3,1)
         #io.write_video(video_path, video, 15, video_codec='h264')
 
-
+    """
     for f in tqdm(train_files):
         in_video_path = os.path.join(dataset_dir, "train_dataset", f)
         out_video_path = os.path.join(resized_dir, "train_dataset", f[:-3] + "pt")
@@ -116,7 +116,7 @@ if not os.path.exists(resized_dir) or create_small_dataset:
         except Exception as e:
             errors.append((f, e))
         print(f"resized {f} from train")
-
+    """
     for f in tqdm(test_files):
         in_video_path = os.path.join(dataset_dir, "test_dataset", f)
         out_video_path = os.path.join(resized_dir, "test_dataset", f[:-3] + "pt")
@@ -202,7 +202,7 @@ class VideoDataset(Dataset):
 
 
 
-train_dataset = VideoDataset(dataset_dir, dataset_choice="train", nb_frames=nb_frames)
+#train_dataset = VideoDataset(dataset_dir, dataset_choice="train", nb_frames=nb_frames)
 test_dataset = VideoDataset(dataset_dir, dataset_choice="test", nb_frames=nb_frames)
 experimental_dataset = VideoDataset(dataset_dir, dataset_choice="experimental", nb_frames=nb_frames)
 
@@ -248,9 +248,11 @@ print("Training model:")
 summary(model, input_size=(2, 3, 10, 256, 256))
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 nb_epochs = 5
-loader = DataLoader(train_dataset, batch_size=2, shuffle=True)
+#loader = DataLoader(train_dataset, batch_size=2, shuffle=True)
+loader = DataLoader(experimental_dataset, batch_size=2, shuffle=True)
 
 print("Training...")
+"""
 for epoch in range(nb_epochs):
     for sample in tqdm(loader, desc="Epoch {}".format(epoch), ncols=0):
         optimizer.zero_grad()
@@ -263,7 +265,7 @@ for epoch in range(nb_epochs):
         loss.backward()
         optimizer.step()
         run.log({"loss": loss.item(), "epoch": epoch})
-
+"""
 ## TEST
 
 loader = DataLoader(test_dataset, batch_size=2, shuffle=False)
