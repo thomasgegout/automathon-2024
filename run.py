@@ -196,7 +196,6 @@ class VideoDataset(Dataset):
         video = video / 255
 
         ID = self.ids[self.video_files[idx]]
-        print(ID, type(ID))
         if self.dataset_choice == "test":
             return video, ID
         else:
