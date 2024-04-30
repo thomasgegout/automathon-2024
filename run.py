@@ -84,13 +84,13 @@ if not os.path.exists(resized_dir):
     experimental_files = [f for f in os.listdir(os.path.join(dataset_dir, "experimental_dataset")) if f.endswith('.mp4')]
     
     def resize(video_path, nb_frames=10):
-        video, audio, info = io.read_video(video_path, pts_unit='sec')
+        video, audio, info = io.read_video(video_path)
         video = video.permute(0,3,1,2)
         length = video.shape[0]
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
         video = smart_resize(video, 256)
         video = video.permute(0,2,3,1)
-        io.write_video(video_path, video, 15, video_codec='libx264')
+        io.write_video(video_path, video, 15, video_codec='h264')
 
     for f in train_files:
         video_path = os.path.join(dataset_dir, "train_dataset", f)
