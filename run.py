@@ -16,11 +16,6 @@ from PIL import Image
 import torchvision.transforms as transforms
 
 # UTILITIES
-import matplotlib.pyplot as plt
-
-def display_image(img):
-    img = img.permute(1,2,0)
-    plt.imshow(img)
 
 def resize_data(data, new_height, new_width, x=0, y=0, height=None, width=None):
     # Prends un tensor de shape [...,C,H,W] et le resize en [C,new_height,new_width]
