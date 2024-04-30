@@ -94,7 +94,9 @@ if not os.path.exists(resized_dir) or create_small_dataset:
         frames = []
         for i in range(10):
             reader.seek(1)
-            frames.append(next(reader))
+            frame = next(reader)
+            frames.append(frame['data'])
+            print(frame['data'].shape)
         
         video = torch.stack(frames)
         #video, audio, info = io.read_video(in_video_path, pts_unit='sec', start_pts=0, end_pts=10, output_format='TCHW')
