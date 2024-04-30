@@ -49,6 +49,7 @@ def resize_data(data, new_height, new_width, x=0, y=0, height=None, width=None):
 
 dataset_dir = "/raid/datasets/hackathon2024"
 root_dir = os.path.expanduser("~/automathon-2024")
+nb_frames = 10
 
 ## MAKE RESIZED DATASET
 resized_dir = os.path.join(root_dir, "resized_dataset")
@@ -59,32 +60,26 @@ if not os.path.exists(resized_dir):
     train_files = [f for f in os.listdir(os.path.join(dataset_dir, "train_dataset")) if f.endswith('.mp4')]
     test_files = [f for f in os.listdir(os.path.join(dataset_dir, "test_dataset")) if f.endswith('.mp4')]
     experimental_files = [f for f in os.listdir(os.path.join(dataset_dir, "experimental_dataset")) if f.endswith('.mp4')]
-    for f in train_files:
-        video_path = os.path.join(dataset_dir, "train_dataset", f)
+    def resize(video_path, nb_frames=10):
         video, audio, info = io.read_video(video_path, pts_unit='sec')
         video = video.permute(0,3,1,2)
+        length = video.shape[0]
+        video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
         video = resize_data(video, 256, 256)
         video = video.permute(0,2,3,1)
-        length = video.shape[0]
-        io.write_video(os.path.join(resized_dir, "train_dataset", f), video, 15, video_codec='h264')
+        io.write_video(video_path, video, 15, video_codec='h264')
+
+    for f in train_files:
+        video_path = os.path.join(dataset_dir, "train_dataset", f)
+        resize(video_path)
         print(f"resized {f} from train")
     for f in test_files:
         video_path = os.path.join(dataset_dir, "test_dataset", f)
-        video, audio, info = io.read_video(video_path, pts_unit='sec')
-        video = video.permute(0,3,1,2)
-        video = resize_data(video, 256, 256)
-        video = video.permute(0,2,3,1)
-        length = video.shape[0]
-        io.write_video(os.path.join(resized_dir, "test_dataset", f), video, 15, video_codec='h264')
+        resize(video_path)
         print(f"resized {f} from test")
     for f in experimental_files:
         video_path = os.path.join(dataset_dir, "experimental_dataset", f)
-        video, audio, info = io.read_video(video_path, pts_unit='sec')
-        video = video.permute(0,3,1,2)
-        video = resize_data(video, 256, 256)
-        video = video.permute(0,2,3,1)
-        length = video.shape[0]
-        io.write_video(os.path.join(resized_dir, "experimental_dataset", f), video, 15, video_codec='h264')
+        resize(video_path)
         print(f"resized {f} from experimental")
     os.system(f"cp {os.path.join(dataset_dir, 'train_dataset', 'metadata.json')} {os.path.join(resized_dir, 'train_dataset', 'metadata.json')}")
     os.system(f"cp {os.path.join(dataset_dir, 'dataset.csv')} {os.path.join(resized_dir, 'dataset.csv')}")
