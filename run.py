@@ -106,6 +106,7 @@ if not os.path.exists(resized_dir) and create_small_dataset:
         #video = video.permute(0,2,3,1)
         #io.write_video(video_path, video, 15, video_codec='h264')
 
+    """
     for f in tqdm(train_files):
         in_video_path = os.path.join(dataset_dir, "train_dataset", f)
         out_video_path = os.path.join(resized_dir, "train_dataset", f[:-3] + "pt")
@@ -114,15 +115,22 @@ if not os.path.exists(resized_dir) and create_small_dataset:
         except Exception as e:
             errors.append((f, e))
         print(f"resized {f} from train")
+    """
     for f in tqdm(test_files):
-        in_video_path = os.path.join(dataset_dir, "train_dataset", f)
-        out_video_path = os.path.join(resized_dir, "train_dataset", f[:-3] + "pt")
-        resize(in_video_path, out_video_path)
+        in_video_path = os.path.join(dataset_dir, "test_dataset", f)
+        out_video_path = os.path.join(resized_dir, "test_dataset", f[:-3] + "pt")
+        try:
+            resize(in_video_path, out_video_path)
+        except Exception as e:
+            errors.append((f, e))
         print(f"resized {f} from test")
     for f in tqdm(experimental_files):
         in_video_path = os.path.join(dataset_dir, "experimental_dataset", f)
         out_video_path = os.path.join(resized_dir, "experimental_dataset", f[:-3] + "pt")
-        resize(in_video_path, out_video_path)
+        try:
+            resize(in_video_path, out_video_path)
+        except Exception as e:
+            errors.append((f, e))
         print(f"resized {f} from experimental")
     os.system(f"cp {os.path.join(dataset_dir, 'train_dataset', 'metadata.json')} {os.path.join(resized_dir, 'train_dataset', 'metadata.json')}")
     os.system(f"cp {os.path.join(dataset_dir, 'dataset.csv')} {os.path.join(resized_dir, 'dataset.csv')}")
