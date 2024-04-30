@@ -78,10 +78,10 @@ nb_frames = 10
 create_small_dataset = True
 resized_dir = os.path.join(root_dir, "resized_dataset")
 errors = []
-if not os.path.exists(resized_dir) and create_small_dataset:
-    os.mkdir(resized_dir)
-    os.mkdir(os.path.join(resized_dir, "train_dataset"))
-    os.mkdir(os.path.join(resized_dir, "test_dataset"))
+if not os.path.exists(resized_dir) or create_small_dataset:
+    #os.mkdir(resized_dir)
+    #os.mkdir(os.path.join(resized_dir, "train_dataset"))
+    #os.mkdir(os.path.join(resized_dir, "test_dataset"))
     train_files = [f for f in os.listdir(os.path.join(dataset_dir, "train_dataset")) if f.endswith('.mp4')]
     test_files = [f for f in os.listdir(os.path.join(dataset_dir, "test_dataset")) if f.endswith('.mp4')]
     experimental_files = [f for f in os.listdir(os.path.join(dataset_dir, "experimental_dataset")) if f.endswith('.mp4')]
