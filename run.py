@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import time
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
@@ -85,12 +86,19 @@ if not os.path.exists(resized_dir) and create_small_dataset:
     experimental_files = [f for f in os.listdir(os.path.join(dataset_dir, "experimental_dataset")) if f.endswith('.mp4')]
     
     def resize(in_video_path, out_video_path, nb_frames=10):
+        # use time to measure the time it takes to resize a video
+        t1 = time.time()
         video, audio, info = io.read_video(in_video_path)
+        t2 = time.time()
         video = video.permute(0,3,1,2)
         length = video.shape[0]
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
+        t3 = time.time()
         video = smart_resize(video, 256)
+        t4 = time.time()
         torch.save(video, out_video_path)
+        t5 = time.time()
+        print(f"read: {t2-t1}, permute: {t3-t2}, resize: {t4-t3}, save: {t5-t4}")
         #video = video.permute(0,2,3,1)
         #io.write_video(video_path, video, 15, video_codec='h264')
 
