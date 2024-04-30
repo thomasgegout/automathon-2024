@@ -195,7 +195,7 @@ class VideoDataset(Dataset):
         #video = smart_resize(video, 256) / 255
         video = video / 255
 
-        ID = self.ids[self.video_files[idx]]
+        ID = self.ids[self.video_files[idx]][0]
         if self.dataset_choice == "test":
             return video, ID
         else:
@@ -279,7 +279,7 @@ for sample in tqdm(loader):
     X, ID = sample
     X = X.to(device)
     label_pred = model(X)
-    ids.append(ID.item())
+    ids.append(ID)
     pred = 1 if label_pred.item() > 0.5 else 0
     labels.append(pred)
 
