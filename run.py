@@ -17,9 +17,8 @@ from PIL import Image
 import torchvision.transforms as transforms
 
 # UTILITIES
-
-def resize_data(data, new_height, new_width, x=0, y=0, height=None, width=None):
-    # Prends un tensor de shape [...,C,H,W] et le resize en [C,new_height,new_width]
+def resize_transform(new_height, new_width, x=0, y=0, height=None, width=None):
+    # Prends un tensor de shape [...,C,H,W] et le resize en [...,C,new_height,new_width]
     # x, y, height et width servent a faire un crop avant de resize
 
     full_height = data.shape[-2]
@@ -41,6 +40,17 @@ def resize_data(data, new_height, new_width, x=0, y=0, height=None, width=None):
         transforms.CenterCrop((expand_height, expand_width)),
         transforms.Resize((new_height, new_width))
     ])
+    return tr
+def resize_data(data, new_height, new_width, x=0, y=0, height=None, width=None):
+    # Prends un tensor de shape [...,C,H,W] et le resize en [C,new_height,new_width]
+    # x, y, height et width servent a faire un crop avant de resize
+
+    full_height = data.shape[-2]
+    full_width = data.shape[-1]
+    height = full_height - y if height is None else height
+    width = full_width -x if width is None else width
+
+    tr = resize_transform(new_height, new_width, x, y, height, width)
     x = data[...,y:min(y+height, full_height), x:min(x+width, full_width)].clone()
     return tr(x)
 
@@ -60,12 +70,13 @@ if not os.path.exists(resized_dir):
     train_files = [f for f in os.listdir(os.path.join(dataset_dir, "train_dataset")) if f.endswith('.mp4')]
     test_files = [f for f in os.listdir(os.path.join(dataset_dir, "test_dataset")) if f.endswith('.mp4')]
     experimental_files = [f for f in os.listdir(os.path.join(dataset_dir, "experimental_dataset")) if f.endswith('.mp4')]
+    tr = resize_transform(256, 256)
     def resize(video_path, nb_frames=10):
         video, audio, info = io.read_video(video_path, pts_unit='sec')
         video = video.permute(0,3,1,2)
         length = video.shape[0]
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
-        video = resize_data(video, 256, 256)
+        video = tr(video)
         video = video.permute(0,2,3,1)
         io.write_video(video_path, video, 15, video_codec='h264')
 
