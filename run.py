@@ -140,7 +140,9 @@ if not os.path.exists(resized_dir) or create_small_dataset:
 
 print(errors)
 
-if create_small_dataset:
+use_small_dataset = True
+
+if use_small_dataset:
     dataset_dir = resized_dir
 
 nb_frames = 10
@@ -269,7 +271,7 @@ for epoch in range(nb_epochs):
 """
 ## TEST
 
-loader = DataLoader(test_dataset, batch_size=2, shuffle=False)
+loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 model = model.to(device)
 ids = []
 labels = []
