@@ -91,11 +91,7 @@ if not os.path.exists(resized_dir) and create_small_dataset:
         # take 10 frames uniformly sampled from the video
         info = reader.get_metadata()
         duration = info['video']['duration']
-        frames = []
-        for i in range(nb_frames):
-            reader.seek((duration*i)//nb_frames)
-            frames.append(next(reader))
-        video = torch.stack(frames)
+        video = torch.stack([frame for frame in reader.seek(duration//nb_frames)])
 
         #video, audio, info = io.read_video(in_video_path, pts_unit='sec', start_pts=0, end_pts=10, output_format='TCHW')
         t2 = time.time()
