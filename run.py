@@ -137,9 +137,8 @@ if not os.path.exists(resized_dir) or create_small_dataset:
     os.system(f"cp {os.path.join(dataset_dir, 'train_dataset', 'metadata.json')} {os.path.join(resized_dir, 'train_dataset', 'metadata.json')}")
     os.system(f"cp {os.path.join(dataset_dir, 'dataset.csv')} {os.path.join(resized_dir, 'dataset.csv')}")
     os.system(f"cp {os.path.join(dataset_dir, 'experimental_dataset', 'metadata.json')} {os.path.join(resized_dir, 'experimental_dataset', 'metadata.json')}")
-
-print(errors)
-
+    if errors:
+        print(errors)
 use_small_dataset = True
 
 if use_small_dataset:
