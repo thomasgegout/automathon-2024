@@ -66,7 +66,7 @@ if not os.path.exists(resized_dir):
         video = resize_data(video, 256, 256)
         video = video.permute(0,2,3,1)
         length = video.shape[0]
-        io.write_video(os.path.join(resized_dir, "train_dataset", f), video, 15, video_codec='libx264', audio_array=audio)
+        io.write_video(os.path.join(resized_dir, "train_dataset", f), video, 15, video_codec='h264', audio_array=audio)
         print(f"resized {f} from train")
     for f in test_files:
         video_path = os.path.join(dataset_dir, "test_dataset", f)
@@ -75,7 +75,7 @@ if not os.path.exists(resized_dir):
         video = resize_data(video, 256, 256)
         video = video.permute(0,2,3,1)
         length = video.shape[0]
-        io.write_video(os.path.join(resized_dir, "test_dataset", f), video, 15, video_codec='libx264', audio_array=audio)
+        io.write_video(os.path.join(resized_dir, "test_dataset", f), video, 15, video_codec='h264', audio_array=audio)
         print(f"resized {f} from test")
     for f in experimental_files:
         video_path = os.path.join(dataset_dir, "experimental_dataset", f)
@@ -84,7 +84,7 @@ if not os.path.exists(resized_dir):
         video = resize_data(video, 256, 256)
         video = video.permute(0,2,3,1)
         length = video.shape[0]
-        io.write_video(os.path.join(resized_dir, "experimental_dataset", f), video, 15, video_codec='libx264', audio_array=audio)
+        io.write_video(os.path.join(resized_dir, "experimental_dataset", f), video, 15, video_codec='h264', audio_array=audio)
         print(f"resized {f} from experimental")
     os.system(f"cp {os.path.join(dataset_dir, 'train_dataset', 'metadata.json')} {os.path.join(resized_dir, 'train_dataset', 'metadata.json')}")
     os.system(f"cp {os.path.join(dataset_dir, 'dataset.csv')} {os.path.join(resized_dir, 'dataset.csv')}")
