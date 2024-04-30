@@ -61,8 +61,8 @@ if not os.path.exists(resized_dir):
     test_files = [f for f in os.listdir(os.path.join(dataset_dir, "test_dataset")) if f.endswith('.mp4')]
     experimental_files = [f for f in os.listdir(os.path.join(dataset_dir, "experimental_dataset")) if f.endswith('.mp4')]
     
-    tr = transforms.CenterCrop((256,256))
-    def resize(path, videos, nb_frames=10):
+    tr = transforms.Resize((256,256))
+    def resize(video_path, nb_frames=10):
         video, audio, info = io.read_video(video_path, pts_unit='sec')
         video = video.permute(0,3,1,2)
         length = video.shape[0]
