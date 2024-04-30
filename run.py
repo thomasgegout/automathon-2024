@@ -35,7 +35,7 @@ def smart_resize(data, size): # kudos louis
         alt_height = size
         alt_width = size
     tr = transforms.Compose([
-        transforms.Resize((alt_height, alt_width))
+        transforms.Resize((alt_height, alt_width)),
         transforms.CenterCrop(size)
     ])
     return tr(data)
