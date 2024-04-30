@@ -270,19 +270,20 @@ for epoch in range(nb_epochs):
 """
 ## TEST
 
-loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
+loader = DataLoader(test_dataset, batch_size=2, shuffle=False)
 model = model.to(device)
 ids = []
 labels = []
 print("Testing...")
 for sample in tqdm(loader):
     X, ID = sample
-    ID = ID[0]
+    #ID = ID[0]
     X = X.to(device)
     label_pred = model(X)
-    ids.append(ID)
-    pred = 1 if label_pred.item() > 0.5 else 0
-    labels.append(pred)
+    ids.extend(list(ID))
+    pred = (label_pred > 0.5).long()
+    pred = pred.cpu().detach().numpy().tolist()
+    labels.extend(pred)
 
 ### ENREGISTREMENT
 print("Saving...")
