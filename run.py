@@ -76,7 +76,7 @@ nb_frames = 10
 
 ## MAKE RESIZED DATASET
 create_small_dataset = False
-resized_dir = os.path.join(root_dir, "resized_dataset")
+resized_dir = os.path.join(dataset_dir, "resized_dataset")
 errors = []
 if not os.path.exists(resized_dir) or create_small_dataset:
     os.mkdir(resized_dir)
