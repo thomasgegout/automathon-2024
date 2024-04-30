@@ -86,8 +86,8 @@ if not os.path.exists(resized_dir):
         length = video.shape[0]
         io.write_video(os.path.join(resized_dir, "experimental_dataset", f), video, 15, video_codec='libx264', audio_array=audio)
         print(f"resized {f} from experimental")
-    os.system(f"cp {os.path.join(dataset_dir, "train_dataset", "metadata.json")} {os.path.join(resized_dir, "train_dataset", "metadata.json")}")
-    os.system(f"cp {os.path.join(dataset_dir, "dataset.csv")} {os.path.join(resized_dir, 'dataset.csv')}")
+    os.system(f"cp {os.path.join(dataset_dir, 'train_dataset', 'metadata.json')} {os.path.join(resized_dir, 'train_dataset', 'metadata.json')}")
+    os.system(f"cp {os.path.join(dataset_dir, 'dataset.csv')} {os.path.join(resized_dir, 'dataset.csv')}")
     os.system(f"cp {os.path.join(dataset_dir, 'experimental_dataset', 'metadata.json')} {os.path.join(resized_dir, 'experimental_dataset', 'metadata.json')}")
     
 
