@@ -93,15 +93,15 @@ if not os.path.exists(resized_dir) and create_small_dataset:
         video = video.permute(0,2,3,1)
         io.write_video(video_path, video, 15, video_codec='h264')
 
-    for f in train_files:
+    for f in tqdm(train_files):
         video_path = os.path.join(dataset_dir, "train_dataset", f)
         resize(video_path)
         print(f"resized {f} from train")
-    for f in test_files:
+    for f in tqdm(test_files):
         video_path = os.path.join(dataset_dir, "test_dataset", f)
         resize(video_path)
         print(f"resized {f} from test")
-    for f in experimental_files:
+    for f in tqdm(experimental_files):
         video_path = os.path.join(dataset_dir, "experimental_dataset", f)
         resize(video_path)
         print(f"resized {f} from experimental")
