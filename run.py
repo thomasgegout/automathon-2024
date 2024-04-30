@@ -87,10 +87,10 @@ if not os.path.exists(resized_dir) and create_small_dataset:
     def resize(in_video_path, out_video_path, nb_frames=10):
         # use time to measure the time it takes to resize a video
         t1 = time.time()
-        reader = io.VideoReader(in_video_path, stream='video')
+        #reader = io.VideoReader(in_video_path, stream='video')
         # take 10 frames uniformly sampled from the video
-        info = reader.get_metadata()
-        duration = info['video']['duration']
+        #info = reader.get_metadata()
+        #duration = info['video']['duration']
         #video = torch.stack([frame for frame in reader.seek(duration//nb_frames)])
 
         video, audio, info = io.read_video(in_video_path, pts_unit='sec', start_pts=0, end_pts=5, output_format='TCHW')
