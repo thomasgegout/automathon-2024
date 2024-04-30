@@ -279,8 +279,9 @@ for sample in tqdm(loader):
     X, ID = sample
     X = X.to(device)
     label_pred = model(X)
-    ids.append(ID)
-    labels.append(label_pred)
+    ids.append(ID.item())
+    pred = 1 if label_pred.item() > 0.5 else 0
+    labels.append(pred)
 
 ### ENREGISTREMENT
 print("Saving...")
