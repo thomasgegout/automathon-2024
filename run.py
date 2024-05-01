@@ -210,10 +210,8 @@ class VideoDataset(Dataset):
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
         """
         
-        img=video[0].unsqueeze(0)
-        video = smart_resize(video, 1024)
         
-        predict = model_yolo.predict(img)
+        predict = model_yolo.predict(video)
         boxes = predict[0].boxes
         for box in boxes :
             top_left_x = int(box.xyxy.tolist()[0][0])    
