@@ -22,14 +22,14 @@ import torchvision.transforms.v2 as transforms
 
 model_yolo = YOLO('yolov8m-face.pt')
 
-def extract_frames(video_path, nb_frames=10, delta=1, timeit=False):
+def extract_frames(video_path, nb_frames=1, delta=1, timeit=False):
     # use time to measure the time it takes to resize a video
     t1 = time.time()
     reader = io.VideoReader(video_path)
     # take 10 frames uniformly sampled from the video
     frames = []
     for i in range(nb_frames):
-        reader.seek(delta)
+        reader.seek(0)
         frame = next(reader)
         frames.append(frame['data'])
     t2 = time.time()     
@@ -161,7 +161,7 @@ class VideoDataset(Dataset):
     This Dataset takes a video and returns a tensor of shape [10, 3, 256, 256]
     That is 10 colored frames of 256x256 pixels.
     """
-    def __init__(self, root_dir, dataset_choice="train", nb_frames=10):
+    def __init__(self, root_dir, dataset_choice="train", nb_frames=1):
         super().__init__()
         self.dataset_choice = dataset_choice
         if  self.dataset_choice == "train":
@@ -177,20 +177,24 @@ class VideoDataset(Dataset):
             reader = csv.reader(file)
             # read dataset.csv with id,label columns to create
             # a dict which associated label: id
-            self.ids = {row[1][:-3] + "pt" : row[0] for row in reader}
+            #self.ids = {row[1][:-3] + "pt" : row[0] for row in reader}            
+            self.ids = {row[1] : row[0] for row in reader}
 
+        
         if self.dataset_choice == "test":
             self.data = None
         else:
             with open(os.path.join(self.root_dir, "metadata.json"), 'r') as file:
                 self.data= json.load(file)
-                self.data = {k[:-3] + "pt" : (torch.tensor(float(1)) if v == 'fake' else torch.tensor(float(0))) for k, v in self.data.items()}
+                #self.data = {k[:-3] + "pt" : (torch.tensor(float(1)) if v == 'fake' else torch.tensor(float(0))) for k, v in self.data.items()}
+                self.data = {k : (torch.tensor(float(1)) if v == 'fake' else torch.tensor(float(0))) for k, v in self.data.items()}
 
-        #self.video_files = [f for f in os.listdir(self.root_dir) if f.endswith('.mp4')]
-        self.video_files = [f for f in os.listdir(self.root_dir) if f.endswith('.pt')]
+
+        self.video_files = [f for i,f in enumerate(os.listdir(self.root_dir)) if f.endswith('.mp4') and i%10==0]
+        #self.video_files = [f for f in os.listdir(self.root_dir) if f.endswith('.pt')]
 
     def __len__(self):
-        return len(self.video_files)
+        return len(self.video_files)-5000
 
     def __getitem__(self, idx):
         video_path = os.path.join(self.root_dir, self.video_files[idx])
@@ -206,8 +210,15 @@ class VideoDataset(Dataset):
         # resize the data into a reglar shape of 256x256 and normalize it
         video = smart_resize(video, 256) / 255
         video = video / 255
-        predict= model_yolo.predict(video[0])
-        print(predict.boxes)
+        
+        predict = model_yolo.predict(video[0])
+        boxes = predict.boxes
+        for box in boxes :
+            top_left_x = int(box.xyxy.tolist()[0][0])    
+            top_left_y = int(box.xyxy.tolist()[0][1])
+            bottom_right_x = int(box.xyxy.tolist()[0][2])
+            bottom_right_y = int(box.xyxy.tolist()[0][3])
+
         
         ID = self.ids[self.video_files[idx]]
         if self.dataset_choice == "test":
