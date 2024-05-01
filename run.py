@@ -257,7 +257,7 @@ run = wandb.init(
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 batch_size = 2
-loss_fn = nn.MSELoss()
+loss_fn = nn.CrossEntropyLoss()
 model = model.to(device)
 print("Training model:")
 #summary(model, input_size=(batch_size, 3, 10, 256, 256))
