@@ -158,7 +158,7 @@ if not os.path.exists(resized_dir) or create_small_dataset:
     if errors:
         print(errors)
 """
-use_small_dataset = True
+use_small_dataset = False
 if use_small_dataset:
     dataset_dir = resized_dir
 
