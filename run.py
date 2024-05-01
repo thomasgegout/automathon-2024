@@ -20,7 +20,7 @@ import torchvision.transforms.v2 as transforms
 
 # UTILITIES
 
-model_yolo = YOLO('yolov8m-face.pt')
+model_yolo = YOLO('/raid/home/automathon_2024/account28/Desktop/automathon-2024/yolo8m-face.pt')
 
 def extract_frames(video_path, nb_frames=1, delta=1, timeit=False):
     # use time to measure the time it takes to resize a video
