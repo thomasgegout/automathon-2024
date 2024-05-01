@@ -207,7 +207,7 @@ class VideoDataset(Dataset):
         length = video.shape[0]
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
         """
-        
+        video = smart_resize(video, 1024)
         img=video[0].unsqueeze(0)
         
         predict = model_yolo.predict(img)
