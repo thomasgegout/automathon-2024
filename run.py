@@ -228,7 +228,7 @@ class VideoDataset(Dataset):
         # resize the data into a reglar shape of 256x256 and normalize it
         video = resize_data(video, 256, 256, top_left_x, top_left_y, abs(top_left_y-bottom_right_y), abs(top_left_x-bottom_left_x))
         video = video / 255.0
-        print(video.dtype)
+        print("bonjour!")
         
         ID = self.ids[self.video_files[idx]]
         if self.dataset_choice == "test":
