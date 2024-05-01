@@ -201,7 +201,7 @@ class VideoDataset(Dataset):
     def __getitem__(self, idx):
         video_path = os.path.join(self.root_dir, self.video_files[idx])
         video, audio, info = io.read_video(video_path, pts_unit='sec')
-        video = extract_frames(video_path)
+        video = video[0].unsqueeze(0)
         #video = torch.load(video_path)
         
         """
