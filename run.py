@@ -27,6 +27,7 @@ def extract_frames(video_path, nb_frames=1, delta=1, timeit=False):
     t1 = time.time()
     reader = io.VideoReader(video_path)
     # take 10 frames uniformly sampled from the video
+    '''
     frames = []
     for i in range(nb_frames):
         reader.seek(0)
@@ -36,7 +37,8 @@ def extract_frames(video_path, nb_frames=1, delta=1, timeit=False):
     video = torch.stack(frames)
     if timeit:
         print(f"read: {t2-t1}")
-    return video
+    '''
+    return video[10]
 
 def smart_resize(data, size): # kudos louis
     # Prends un tensor de shape [...,C,H,W] et le resize en [...C,size,size]
