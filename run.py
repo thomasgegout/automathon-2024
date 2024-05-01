@@ -237,17 +237,13 @@ class DeepfakeDetector(nn.Module):
         self.final = nn.Linear(encoder_shape, num_classes)
     
     def forward(self, x):
-        answ=[]
-        for i in range(nb_frames) :
-            z=copy.deepcopy(x[:, i, ...])
-            z=torch.squeeze(z)
-            encoding = self.encoder(z)
-            pooled = self.avgpool(encoding).flatten(1)
-            dropped = self.dropout(pooled)
-            z = self.final(dropped)
-            answ.append(z)
-        return sum(answ)/len(answ)
-
+        x=x[:, 0, ...]
+        x=torch.squeeze(x)
+        encoding = self.encoder(x)
+        pooled = self.avgpool(encoding).flatten(1)
+        dropped = self.dropout(pooled)
+        y = self.final(dropped)
+        return y
 model = DeepfakeDetector(efficient_net)
 # LOGGING
 
