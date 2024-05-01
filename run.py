@@ -215,7 +215,7 @@ class VideoDataset(Dataset):
         #video = torch.squeeze(video)
         video = smart_resize(video, 1344) # (1, 3, 1344, 1344)
         #video = video.unsqueeze(0)
-        
+        '''
         predict = model_yolo(video)
         boxes = predict[0].boxes
         box = boxes[0]
@@ -223,10 +223,10 @@ class VideoDataset(Dataset):
         top_left_y = int(box.xyxy.tolist()[0][1])
         bottom_right_x = int(box.xyxy.tolist()[0][2])
         bottom_right_y = int(box.xyxy.tolist()[0][3])
-        
+        '''
         video=video.float
         # resize the data into a reglar shape of 256x256 and normalize it
-        video = resize_data(video, 256, 256, top_left_x, top_left_y, abs(top_left_y-bottom_right_y), abs(top_left_x-bottom_left_x))
+        video = resize_data(video, 256, 256)#, top_left_x, top_left_y, abs(top_left_y-bottom_right_y), abs(top_left_x-bottom_left_x))
         video = video / 255.0
         print("bonjour!")
         
