@@ -229,6 +229,7 @@ for p in efficient_net.parameters():
 class DeepfakeDetector(nn.Module):
     def __init__(self, encoder, dropout_rate=0.5, encoder_shape=2560, num_classes=1):
         super().__init__()
+        self.flat= nn.Flatten(dim=1)
         self.encoder = encoder
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.dropout = nn.Dropout(dropout_rate)
