@@ -220,7 +220,7 @@ experimental_dataset = VideoDataset(dataset_dir, dataset_choice="experimental", 
 
 # MODELE
 
-efficient_net = timm.create_model('tf_efficientnet_b7_ns', pretrained=True, num_classes=1, global_pool='')
+efficient_net = timm.create_model('tf_efficientnet_b7_ns', pretrained=True, num_classes=0, global_pool='')
 efficient_net.eval()
 
 for p in efficient_net.parameters():
@@ -257,7 +257,7 @@ batch_size = 32
 loss_fn = nn.MSELoss()
 model = model.to(device)
 print("Training model:")
-summary(model, input_size=(batch_size, 3, 10, 256, 256))
+#summary(model, input_size=(batch_size, 3, 10, 256, 256))
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 epochs = 5
 loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
