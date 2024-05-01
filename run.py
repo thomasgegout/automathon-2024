@@ -194,7 +194,7 @@ class VideoDataset(Dataset):
         #self.video_files = [f for f in os.listdir(self.root_dir) if f.endswith('.pt')]
 
     def __len__(self):
-        return len(self.video_files)-5000
+        return len(self.video_files)
 
     def __getitem__(self, idx):
         video_path = os.path.join(self.root_dir, self.video_files[idx])
