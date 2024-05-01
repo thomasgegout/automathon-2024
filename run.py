@@ -220,19 +220,28 @@ experimental_dataset = VideoDataset(dataset_dir, dataset_choice="experimental", 
 
 # MODELE
 
-class DeepfakeDetector(nn.Module):
-    def __init__(self, nb_frames=10):
-        super().__init__()
-        self.dense = nn.Linear(nb_frames*3*256*256,1)
-        self.flat = nn.Flatten()
-        self.sigmoid = nn.Sigmoid()
+efficient_net = timm.create_model('tf_efficientnet_b7_ns', pretrained=True, num_classes=0, global_pool='')
+efficient_net.eval()
 
+for p in efficient_net.parameters():
+    p.requires_grad = False
+
+class DeepfakeDetector(nn.Module):
+    def __init__(self, encoder, dropout_rate=0.5, encoder_shape=2560, num_classes=1):
+        super().__init__()
+        self.encoder = encoder
+        self.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        self.dropout = nn.Dropout(dropout_rate)
+        self.final = nn.Linear(encoder_shape, num_classes)
+    
     def forward(self, x):
-        y = self.flat(x)
-        y = self.dense(y)
-        y = self.sigmoid(y)
+        encoding = self.encoder(x)
+        pooled = self.avgpool(encoding).flatten(1)
+        dropped = self.dropout(pooled)
+        y = self.final(dropped)
         return y
 
+model = DeepfakeDetector(efficient_net)
 # LOGGING
 
 wandb.login(key="a446d513570a79c857317c3000584c5f6d6224f0")
