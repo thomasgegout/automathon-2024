@@ -18,6 +18,10 @@ from ultralytics import YOLO
 from PIL import Image
 import torchvision.transforms.v2 as transforms
 
+
+limits = torch.finfo(torch.int32)
+
+
 # UTILITIES
 
 model_yolo = YOLO('/raid/home/automathon_2024/account28/Desktop/automathon-2024/yolo8m-face.pt')
