@@ -25,7 +25,7 @@ model_yolo = YOLO('/raid/home/automathon_2024/account28/Desktop/automathon-2024/
 def extract_frames(video_path, nb_frames=1, delta=1, timeit=False):
     # use time to measure the time it takes to resize a video
     t1 = time.time()
-    video= io.read_video(video_path)
+    video= io.read_video(video_path, pts_unit='sec')
     # take 10 frames uniformly sampled from the video
     '''
     frames = []
@@ -203,7 +203,7 @@ class VideoDataset(Dataset):
         video, audio, info = io.read_video(video_path, pts_unit='sec')
         video = extract_frames(video_path)
         #video = torch.load(video_path)
-
+        
         """
         video = video.permute(0,3,1,2)
         length = video.shape[0]
