@@ -207,9 +207,6 @@ class VideoDataset(Dataset):
         length = video.shape[0]
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
         """
-        # resize the data into a reglar shape of 256x256 and normalize it
-        video = smart_resize(video, 256) / 255
-        #video = video / 255
         
         predict = model_yolo.predict(video[0])
         boxes = predict[0].boxes
@@ -219,6 +216,10 @@ class VideoDataset(Dataset):
             bottom_right_x = int(box.xyxy.tolist()[0][2])
             bottom_right_y = int(box.xyxy.tolist()[0][3])
 
+        # resize the data into a reglar shape of 256x256 and normalize it
+        video = smart_resize(video, 256) / 255
+        #video = video / 255
+        
         
         ID = self.ids[self.video_files[idx]]
         if self.dataset_choice == "test":
