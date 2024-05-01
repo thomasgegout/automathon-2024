@@ -22,14 +22,6 @@ import torchvision.transforms.v2 as transforms
 
 model_yolo = YOLO('yolov8m-face.pt')
 
-predict = model_yolo.predict(video[0])
-boxes = predict.boxes
-for box in boxes :
-    top_left_x = int(box.xyxy.tolist()[0][0])    
-    top_left_y = int(box.xyxy.tolist()[0][1])
-    bottom_right_x = int(box.xyxy.tolist()[0][2])
-    bottom_right_y = int(box.xyxy.tolist()[0][3])
-
 def extract_frames(video_path, nb_frames=1, delta=1, timeit=False):
     # use time to measure the time it takes to resize a video
     t1 = time.time()
