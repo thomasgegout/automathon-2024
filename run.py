@@ -210,7 +210,9 @@ class VideoDataset(Dataset):
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
         """
         video = video.permute(0,3,1,2)
+        video = torch.squeeze(video)
         video = smart_resize(video, 1344) # (1, 3, 1344, 1344)
+        video = video.unsqueeze(0)
         
         predict = model_yolo.predict(video)
         boxes = predict[0].boxes
