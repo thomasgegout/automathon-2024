@@ -1,0 +1,2 @@
+export PATH=/raid/home/automathon_2024/account28/.local/bin:/Users/neosapien/Development/automathon/.venv/bin:/usr/local/cuda/bin:/opt/bin/:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+export PATH=/raid/home/automathon_2024/account28/.local/bin:/Users/neosapien/Development/automathon/.venv/bin:/usr/local/cuda/bin:/opt/bin/:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
