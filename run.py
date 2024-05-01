@@ -213,7 +213,7 @@ class VideoDataset(Dataset):
         """
         video = video.permute(0,3,1,2)
         #video = torch.squeeze(video)
-        video = smart_resize(video, 1344) # (1, 3, 1344, 1344)
+        #video = smart_resize(video, 1344) # (1, 3, 1344, 1344)
         #video = video.unsqueeze(0)
         '''
         predict = model_yolo(video)
@@ -225,7 +225,7 @@ class VideoDataset(Dataset):
         bottom_right_y = int(box.xyxy.tolist()[0][3])
         '''
         # resize the data into a reglar shape of 256x256 and normalize it
-        video = resize_data(video, 256, 256)#, top_left_x, top_left_y, abs(top_left_y-bottom_right_y), abs(top_left_x-bottom_left_x))
+        video = smart_resize(video, 256)#, top_left_x, top_left_y, abs(top_left_y-bottom_right_y), abs(top_left_x-bottom_left_x))
         video = video / 255.0
         
         ID = self.ids[self.video_files[idx]]
