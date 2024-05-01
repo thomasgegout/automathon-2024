@@ -217,6 +217,7 @@ train_dataset = VideoDataset(dataset_dir, dataset_choice="train", nb_frames=nb_f
 test_dataset = VideoDataset(dataset_dir, dataset_choice="test", nb_frames=nb_frames)
 experimental_dataset = VideoDataset(dataset_dir, dataset_choice="experimental", nb_frames=nb_frames)
 
+import copy
 
 # MODELE
 
@@ -236,13 +237,16 @@ class DeepfakeDetector(nn.Module):
         self.final = nn.Linear(encoder_shape, num_classes)
     
     def forward(self, x):
-        x=x[:, 0, ...]
-        x=torch.squeeze(x)
-        encoding = self.encoder(x)
-        pooled = self.avgpool(encoding).flatten(1)
-        dropped = self.dropout(pooled)
-        y = self.final(dropped)
-        return y
+        answ=[]
+        for i in range(nb_frames) :
+            z=copy.deepcopy(x[:, i, ...])
+            z=torch.squeeze(z)
+            encoding = self.encoder(z)
+            pooled = self.avgpool(encoding).flatten(1)
+            dropped = self.dropout(pooled)
+            z = self.final(dropped)
+            answ.append(z)
+        return sum(answ)/len(answ)
 
 model = DeepfakeDetector(efficient_net)
 # LOGGING
@@ -257,7 +261,7 @@ run = wandb.init(
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 batch_size = 2
-loss_fn = nn.CrossEntropyLoss()
+loss_fn = nn.MSELoss()
 model = model.to(device)
 print("Training model:")
 #summary(model, input_size=(batch_size, 3, 10, 256, 256))
