@@ -220,7 +220,7 @@ experimental_dataset = VideoDataset(dataset_dir, dataset_choice="experimental", 
 
 # MODELE
 
-efficient_net = timm.create_model('tf_efficientnet_b7_ns', pretrained=True, num_classes=0, global_pool='')
+efficient_net = timm.create_model('tf_efficientnet_b7_ns', pretrained=True, num_classes=1, global_pool='')
 efficient_net.eval()
 
 for p in efficient_net.parameters():
