@@ -1,0 +1,37 @@
+
+Training model:
+Traceback (most recent call last):
+  File "/raid/home/automathon_2024/account28/.local/lib/python3.10/site-packages/torchinfo/torchinfo.py", line 295, in forward_pass
+    _ = model(*x, **kwargs)
+  File "/raid/home/automathon_2024/account28/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/raid/home/automathon_2024/account28/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1582, in _call_impl
+    result = forward_call(*args, **kwargs)
+  File "/raid/home/automathon_2024/account28/Desktop/automathon-2024/run.py", line 238, in forward
+    encoding = self.encoder(x)
+  File "/raid/home/automathon_2024/account28/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/raid/home/automathon_2024/account28/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1582, in _call_impl
+    result = forward_call(*args, **kwargs)
+  File "/raid/home/automathon_2024/account28/.local/lib/python3.10/site-packages/timm/models/efficientnet.py", line 179, in forward
+    x = self.forward_features(x)
+  File "/raid/home/automathon_2024/account28/.local/lib/python3.10/site-packages/timm/models/efficientnet.py", line 162, in forward_features
+    x = self.conv_stem(x)
+  File "/raid/home/automathon_2024/account28/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/raid/home/automathon_2024/account28/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1582, in _call_impl
+    result = forward_call(*args, **kwargs)
+  File "/raid/home/automathon_2024/account28/.local/lib/python3.10/site-packages/timm/layers/conv2d_same.py", line 51, in forward
+    return conv2d_same(
+  File "/raid/home/automathon_2024/account28/.local/lib/python3.10/site-packages/timm/layers/conv2d_same.py", line 27, in conv2d_same
+    return F.conv2d(x, weight, bias, stride, (0, 0), dilation, groups)
+RuntimeError: Expected 3D (unbatched) or 4D (batched) input to conv2d, but got input of size: [32, 3, 10, 257, 257]
+The above exception was the direct cause of the following exception:
+Traceback (most recent call last):
+  File "/raid/home/automathon_2024/account28/Desktop/automathon-2024/run.py", line 260, in <module>
+    summary(model, input_size=(batch_size, 3, 10, 256, 256))
+  File "/raid/home/automathon_2024/account28/.local/lib/python3.10/site-packages/torchinfo/torchinfo.py", line 223, in summary
+    summary_list = forward_pass(
+  File "/raid/home/automathon_2024/account28/.local/lib/python3.10/site-packages/torchinfo/torchinfo.py", line 304, in forward_pass
+    raise RuntimeError(
+RuntimeError: Failed to run torchinfo. See above stack traces for more details. Executed layers up to: []

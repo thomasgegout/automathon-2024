@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/raid/home/automathon_2024/account28/Desktop/automathon-2024/run.py", line 258, in <module>
+    model = DeepfakeDetector().to(device)
+TypeError: DeepfakeDetector.__init__() missing 1 required positional argument: 'encoder'
