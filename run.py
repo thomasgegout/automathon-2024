@@ -217,7 +217,7 @@ class VideoDataset(Dataset):
         #video = video.unsqueeze(0)
         print(video)
         video=video.float
-        predict = model_yolo.predict(video)
+        predict = model_yolo(video)
         boxes = predict[0].boxes
         box = boxes[0]
         top_left_x = int(box.xyxy.tolist()[0][0])    
