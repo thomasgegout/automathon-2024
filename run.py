@@ -19,6 +19,21 @@ import torchvision.transforms.v2 as transforms
 
 # UTILITIES
 
+def extract_frames(video_path, nb_frames=10, delta=1, time=False):
+    # use time to measure the time it takes to resize a video
+    t1 = time.time()
+    reader = io.VideoReader(video_path)
+    # take 10 frames uniformly sampled from the video
+    frames = []
+    for i in range(nb_frames):
+        reader.seek(delta)
+        frame = next(reader)
+        frames.append(frame['data'])
+    t2 = time.time()     
+    video = torch.stack(frames)
+    print(f"read: {t2-t1}")
+    return video
+
 def smart_resize(data, size): # kudos louis
     # Prends un tensor de shape [...,C,H,W] et le resize en [...C,size,size]
     # x, y, height et width servent a faire un crop avant de resize
@@ -87,28 +102,18 @@ if not os.path.exists(resized_dir) or create_small_dataset:
     test_files = [f for f in os.listdir(os.path.join(dataset_dir, "test_dataset")) if f.endswith('.mp4')]
     experimental_files = [f for f in os.listdir(os.path.join(dataset_dir, "experimental_dataset")) if f.endswith('.mp4')]
     def resize(in_video_path, out_video_path, nb_frames=10):
-        # use time to measure the time it takes to resize a video
+        video = extract_frames(in_video_path, nb_frames=nb_frames)
         t1 = time.time()
-        reader = io.VideoReader(in_video_path)
-        # take 10 frames uniformly sampled from the video
-        duration = 10 # maximum duration of the video
-        frames = []
-        for i in range(10):
-            reader.seek(1)
-            frame = next(reader)
-            frames.append(frame['data'])        
-        video = torch.stack(frames)
         #video, audio, info = io.read_video(in_video_path, pts_unit='sec', start_pts=0, end_pts=10, output_format='TCHW')
-        t2 = time.time()
         video = smart_resize(video, 256)
-        t3 = time.time()
+        t2 = time.time()
         torch.save(video, out_video_path)
-        t4 = time.time()
-        print(f"read: {t2-t1}, resize: {t3-t2}, save: {t4-t3}")
+        t3 = time.time()
+        print(f"resize: {t2-t1}\nsave: {t3-t2}")
         #video = video.permute(0,2,3,1)
         #io.write_video(video_path, video, 15, video_codec='h264')
 
-    """
+    
     for f in tqdm(train_files):
         in_video_path = os.path.join(dataset_dir, "train_dataset", f)
         out_video_path = os.path.join(resized_dir, "train_dataset", f[:-3] + "pt")
@@ -117,7 +122,7 @@ if not os.path.exists(resized_dir) or create_small_dataset:
         except Exception as e:
             errors.append((f, e))
         print(f"resized {f} from train")
-    """
+    
     for f in tqdm(test_files):
         in_video_path = os.path.join(dataset_dir, "test_dataset", f)
         out_video_path = os.path.join(resized_dir, "test_dataset", f[:-3] + "pt")
