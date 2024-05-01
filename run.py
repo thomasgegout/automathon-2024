@@ -20,7 +20,7 @@ import torchvision.transforms.v2 as transforms
 # UTILITIES
 
 def smart_resize(data, size): # kudos louis
-    # Prends un tensor de shape [...,C,H,W] et le resize en [C,new_height,new_width]
+    # Prends un tensor de shape [...,C,H,W] et le resize en [...C,size,size]
     # x, y, height et width servent a faire un crop avant de resize
 
     full_height = data.shape[-2]
@@ -28,9 +28,9 @@ def smart_resize(data, size): # kudos louis
 
     if full_height > full_width:
         alt_height = size
-        alt_width = int(full_width * full_height / size)
+        alt_width = int(full_width / (full_height / size))
     elif full_height < full_width:
-        alt_height = int(full_height * full_width / size)
+        alt_height = int(full_height / (full_width / size))
         alt_width = size
     else:
         alt_height = size
