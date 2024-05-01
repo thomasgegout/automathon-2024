@@ -20,7 +20,7 @@ import torchvision.transforms.v2 as transforms
 
 # UTILITIES
 
-model_yolo = YOLO('yolov8n.pt')
+model_yolo = YOLO('yolov8m-face.pt')
 
 def extract_frames(video_path, nb_frames=10, delta=1, timeit=False):
     # use time to measure the time it takes to resize a video
@@ -206,7 +206,9 @@ class VideoDataset(Dataset):
         # resize the data into a reglar shape of 256x256 and normalize it
         video = smart_resize(video, 256) / 255
         video = video / 255
-
+        predict= model_yolo.predict(video[0])
+        print(predict.boxes)
+        
         ID = self.ids[self.video_files[idx]]
         if self.dataset_choice == "test":
             return video, ID
