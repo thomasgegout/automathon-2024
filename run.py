@@ -207,7 +207,7 @@ class VideoDataset(Dataset):
         length = video.shape[0]
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
         """
-        
+        img=video[0].unsqueeze(0)
         predict = model_yolo.predict(video[0])
         boxes = predict[0].boxes
         for box in boxes :
