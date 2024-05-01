@@ -19,7 +19,7 @@ import torchvision.transforms.v2 as transforms
 
 # UTILITIES
 
-def extract_frames(video_path, nb_frames=10, delta=1, time=False):
+def extract_frames(video_path, nb_frames=10, delta=1, timeit=False):
     # use time to measure the time it takes to resize a video
     t1 = time.time()
     reader = io.VideoReader(video_path)
@@ -31,7 +31,8 @@ def extract_frames(video_path, nb_frames=10, delta=1, time=False):
         frames.append(frame['data'])
     t2 = time.time()     
     video = torch.stack(frames)
-    print(f"read: {t2-t1}")
+    if timeit:
+        print(f"read: {t2-t1}")
     return video
 
 def smart_resize(data, size): # kudos louis
@@ -90,8 +91,9 @@ root_dir = os.path.expanduser("~/automathon-2024")
 nb_frames = 10
 
 ## MAKE RESIZED DATASET
-create_small_dataset = False
 resized_dir = os.path.join(dataset_dir, "resized_dataset")
+"""
+create_small_dataset = False
 errors = []
 if not os.path.exists(resized_dir) or create_small_dataset:
     os.mkdir(resized_dir)
@@ -144,8 +146,8 @@ if not os.path.exists(resized_dir) or create_small_dataset:
     os.system(f"cp {os.path.join(dataset_dir, 'experimental_dataset', 'metadata.json')} {os.path.join(resized_dir, 'experimental_dataset', 'metadata.json')}")
     if errors:
         print(errors)
+"""
 use_small_dataset = True
-
 if use_small_dataset:
     dataset_dir = resized_dir
 
@@ -190,12 +192,14 @@ class VideoDataset(Dataset):
     def __getitem__(self, idx):
         video_path = os.path.join(self.root_dir, self.video_files[idx])
         #video, audio, info = io.read_video(video_path, pts_unit='sec')
+        #video = extract_frames(video_path)
         video = torch.load(video_path)
 
+        """
         video = video.permute(0,3,1,2)
         length = video.shape[0]
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
-
+        """
         # resize the data into a reglar shape of 256x256 and normalize it
         #video = smart_resize(video, 256) / 255
         video = video / 255
@@ -209,7 +213,7 @@ class VideoDataset(Dataset):
 
 
 
-#train_dataset = VideoDataset(dataset_dir, dataset_choice="train", nb_frames=nb_frames)
+train_dataset = VideoDataset(dataset_dir, dataset_choice="train", nb_frames=nb_frames)
 test_dataset = VideoDataset(dataset_dir, dataset_choice="test", nb_frames=nb_frames)
 experimental_dataset = VideoDataset(dataset_dir, dataset_choice="experimental", nb_frames=nb_frames)
 
@@ -234,48 +238,39 @@ class DeepfakeDetector(nn.Module):
 wandb.login(key="a446d513570a79c857317c3000584c5f6d6224f0")
 
 run = wandb.init(
-    project="automathon",
-    name="test-admin",
-    config={
-        "learning_rate": 0.001,
-        "architecture": "-",
-        "dataset": "DeepFake Detection Challenge",
-        "epochs": 10,
-        "batch_size": 10,
-    },
+    project="automathon"
 )
 
 # ENTRAINEMENT
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+batch_size = 32
 loss_fn = nn.MSELoss()
 model = DeepfakeDetector().to(device)
 print("Training model:")
-summary(model, input_size=(2, 3, 10, 256, 256))
+summary(model, input_size=(batch_size, 3, 10, 256, 256))
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-nb_epochs = 5
-#loader = DataLoader(train_dataset, batch_size=2, shuffle=True)
-loader = DataLoader(experimental_dataset, batch_size=2, shuffle=True)
+epochs = 5
+loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+#loader = DataLoader(experimental_dataset, batch_size=2, shuffle=True)
 
 print("Training...")
-"""
-for epoch in range(nb_epochs):
-    for sample in tqdm(loader, desc="Epoch {}".format(epoch), ncols=0):
+for epoch in range(epochs):
+    for sample in tqdm(loader):
         optimizer.zero_grad()
         X, label, ID = sample
         X = X.to(device)
         label = label.to(device)
         label_pred = model(X)
-        label=torch.unsqueeze(label,dim=1)
+        label = torch.unsqueeze(label,dim=1)
         loss = loss_fn(label, label_pred)
         loss.backward()
         optimizer.step()
         run.log({"loss": loss.item(), "epoch": epoch})
-"""
+
 ## TEST
 
-loader = DataLoader(test_dataset, batch_size=2, shuffle=False)
+loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 model = model.to(device)
 ids = []
 labels = []
