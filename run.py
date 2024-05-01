@@ -209,7 +209,7 @@ class VideoDataset(Dataset):
         """
         # resize the data into a reglar shape of 256x256 and normalize it
         video = smart_resize(video, 256) / 255
-        video = video / 255
+        #video = video / 255
         
         predict = model_yolo.predict(video[0])
         boxes = predict.boxes
