@@ -13,11 +13,14 @@ from tqdm import tqdm
 import csv
 import timm
 import wandb
+from ultralytics import YOLO
 
 from PIL import Image
 import torchvision.transforms.v2 as transforms
 
 # UTILITIES
+
+model_yolo = YOLO('yolov8n.pt')
 
 def extract_frames(video_path, nb_frames=10, delta=1, timeit=False):
     # use time to measure the time it takes to resize a video
@@ -191,9 +194,9 @@ class VideoDataset(Dataset):
 
     def __getitem__(self, idx):
         video_path = os.path.join(self.root_dir, self.video_files[idx])
-        #video, audio, info = io.read_video(video_path, pts_unit='sec')
-        #video = extract_frames(video_path)
-        video = torch.load(video_path)
+        video, audio, info = io.read_video(video_path, pts_unit='sec')
+        video = extract_frames(video_path)
+        #video = torch.load(video_path)
 
         """
         video = video.permute(0,3,1,2)
@@ -201,7 +204,7 @@ class VideoDataset(Dataset):
         video = video[[i*(length//(nb_frames)) for i in range(nb_frames)]]
         """
         # resize the data into a reglar shape of 256x256 and normalize it
-        #video = smart_resize(video, 256) / 255
+        video = smart_resize(video, 256) / 255
         video = video / 255
 
         ID = self.ids[self.video_files[idx]]
