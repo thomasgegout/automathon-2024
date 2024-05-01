@@ -19,8 +19,6 @@ from PIL import Image
 import torchvision.transforms.v2 as transforms
 
 
-limits = torch.finfo(torch.int32)
-
 
 # UTILITIES
 
