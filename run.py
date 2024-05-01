@@ -212,7 +212,7 @@ class VideoDataset(Dataset):
         #video = video / 255
         
         predict = model_yolo.predict(video[0])
-        boxes = predict.boxes
+        boxes = predict[0].boxes
         for box in boxes :
             top_left_x = int(box.xyxy.tolist()[0][0])    
             top_left_y = int(box.xyxy.tolist()[0][1])
